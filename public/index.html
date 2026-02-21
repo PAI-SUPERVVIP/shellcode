@@ -120,6 +120,8 @@ Type a command and press Enter to run it.</div>
   const term = document.getElementById("terminal");
   const input = document.getElementById("command-input");
   let ctrlActive = false;
+  let history = [];
+  let historyIndex = -1;
 
   function print(text) {
     term.textContent += "\n" + text;
@@ -130,6 +132,9 @@ Type a command and press Enter to run it.</div>
     if (e.key === "Enter") {
       const cmd = input.value.trim();
       if (!cmd) return;
+      
+      history.push(cmd);
+      historyIndex = history.length;
       
       print("$ " + cmd);
       input.value = "";
@@ -148,10 +153,30 @@ Type a command and press Enter to run it.</div>
         term.textContent = term.textContent.replace("Executing...", "");
         print("Error: " + err.message);
       }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        historyIndex--;
+        input.value = history[historyIndex];
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex < history.length - 1) {
+        historyIndex++;
+        input.value = history[historyIndex];
+      } else {
+        historyIndex = history.length;
+        input.value = "";
+      }
     }
   });
 
   function sendKey(key) {
+    if (key === "Tab") {
+      input.focus();
+    } else if (key === "Escape") {
+      input.value = "";
+    }
     print("\n[" + key + " pressed]");
   }
 
@@ -161,11 +186,34 @@ Type a command and press Enter to run it.</div>
   }
 
   function sendArrow(direction) {
+    const selStart = input.selectionStart;
+    const selEnd = input.selectionEnd;
+    const val = input.value;
+    
+    if (direction === "ArrowUp") {
+      if (historyIndex > 0) {
+        historyIndex--;
+        input.value = history[historyIndex] || "";
+      }
+    } else if (direction === "ArrowDown") {
+      if (historyIndex < history.length - 1) {
+        historyIndex++;
+        input.value = history[historyIndex] || "";
+      } else {
+        historyIndex = history.length;
+        input.value = "";
+      }
+    } else if (direction === "ArrowLeft") {
+      if (selStart > 0) input.setSelectionRange(selStart - 1, selStart - 1);
+    } else if (direction === "ArrowRight") {
+      if (selEnd < val.length) input.setSelectionRange(selEnd + 1, selEnd + 1);
+    }
+    input.focus();
     print("\n[" + direction + " pressed]");
   }
 
   function showInfo() {
-    alert("Web Terminal v1.0");
+    alert("Web Terminal v1.0\nCommands: " + history.length + " in history");
   }
 
   async function pasteText() {
