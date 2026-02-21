@@ -13,8 +13,29 @@ term.loadAddon(fitAddon);
 term.open(document.getElementById('terminal-container'));
 fitAddon.fit();
 
-const socket = io();
 let ctrlActive = false;
+
+document.addEventListener('keydown', (e) => {
+  if (ctrlActive && e.key !== 'Control' && e.key !== 'Shift' && e.key !== 'Alt' && e.key !== 'Meta') {
+    const ctrlKey = e.key.toLowerCase();
+    const code = ctrlKey.charCodeAt(0);
+    if (code >= 97 && code <= 122) {
+      socket.emit('terminal:write', String.fromCharCode(code - 96));
+      e.preventDefault();
+      return;
+    }
+  }
+  if (e.ctrlKey) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.key === 'Control') {
+    ctrlActive = false;
+    document.getElementById('btn-ctrl').classList.remove('ctrl-active');
+  }
+});
 
 document.addEventListener('touchstart', (e) => {
   if (e.touches.length > 1) {
@@ -91,8 +112,6 @@ function sendKey(key) {
 function toggleCtrl() {
   ctrlActive = !ctrlActive;
   document.getElementById('btn-ctrl').classList.toggle('ctrl-active', ctrlActive);
-  socket.emit('terminal:write', ctrlActive ? '\x1b' : '');
-  setTimeout(() => term.focus(), 10);
 }
 
 async function pasteText() {
