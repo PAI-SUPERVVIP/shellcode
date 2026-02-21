@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Web Terminal UI</title>
 <style>
   body {
@@ -20,7 +20,11 @@
     color: #00ff00;
     padding: 10px;
     overflow-y: auto;
+    overflow-x: hidden;
     white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
+    max-height: 100%;
   }
 
   .input-line {
@@ -89,7 +93,7 @@ Type a command and press Enter to run it.</div>
 
 <div class="input-line">
   <span class="prompt">$</span>
-  <input type="text" id="command-input" placeholder="Enter command..." autocomplete="off" />
+  <input type="text" id="command-input" placeholder="Enter command..." autocomplete="off" autocapitalize="off" spellcheck="false" />
 </div>
 
 <div class="bar">
