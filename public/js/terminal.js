@@ -25,6 +25,12 @@ document.addEventListener('keydown', (e) => {
       return;
     }
   }
+  if (e.ctrlKey && !ctrlActive) {
+    e.preventDefault();
+  }
+  if (!ctrlActive && !e.ctrlKey && !e.altKey && !e.metaKey && e.key.length === 1) {
+    return;
+  }
   if (e.ctrlKey) {
     e.preventDefault();
   }
@@ -104,14 +110,57 @@ socket.emit('resize', {
 
 term.focus();
 
+const mobileInput = document.getElementById('mobile-input');
+
+function focusMobileInput() {
+  mobileInput.focus();
+}
+
+document.getElementById('terminal-container').addEventListener('click', focusMobileInput);
+document.getElementById('terminal-container').addEventListener('touchstart', focusMobileInput, { passive: true });
+
+mobileInput.addEventListener('input', (e) => {
+  const data = mobileInput.value;
+  if (data) {
+    socket.emit('terminal:write', data);
+    mobileInput.value = '';
+  }
+});
+
+mobileInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    socket.emit('terminal:write', '\r');
+    e.preventDefault();
+  } else if (e.key === 'Backspace') {
+    socket.emit('terminal:write', '\x7f');
+    e.preventDefault();
+  } else if (e.key === 'Delete') {
+    socket.emit('terminal:write', '\x1b[3~');
+    e.preventDefault();
+  } else if (e.key === 'Tab') {
+    socket.emit('terminal:write', '\t');
+    e.preventDefault();
+  } else if (ctrlActive && e.key !== 'Control' && e.key !== 'Shift' && e.key !== 'Alt' && e.key !== 'Meta') {
+    const ctrlKey = e.key.toLowerCase();
+    const code = ctrlKey.charCodeAt(0);
+    if (code >= 97 && code <= 122) {
+      socket.emit('terminal:write', String.fromCharCode(code - 96));
+      e.preventDefault();
+    }
+  } else if (e.ctrlKey) {
+    e.preventDefault();
+  }
+});
+
 function sendKey(key) {
   socket.emit('terminal:write', key);
-  setTimeout(() => term.focus(), 10);
+  setTimeout(() => mobileInput.focus(), 10);
 }
 
 function toggleCtrl() {
   ctrlActive = !ctrlActive;
   document.getElementById('btn-ctrl').classList.toggle('ctrl-active', ctrlActive);
+  setTimeout(() => mobileInput.focus(), 10);
 }
 
 async function pasteText() {
@@ -121,5 +170,5 @@ async function pasteText() {
   } catch {
     alert('Clipboard not allowed');
   }
-  setTimeout(() => term.focus(), 10);
+  setTimeout(() => mobileInput.focus(), 10);
 }
