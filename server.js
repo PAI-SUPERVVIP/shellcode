@@ -1,5 +1,5 @@
 const express = require('express');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const path = require('path');
 
 const app = express();
@@ -16,6 +16,25 @@ app.use((req, res, next) => {
   next();
 });
 
+const pty = spawn('/bin/sh', ['-i'], {
+  env: process.env,
+  cwd: '/'
+});
+
+let outputBuffer = '';
+
+pty.stdout.on('data', (data) => {
+  outputBuffer += data.toString();
+});
+
+pty.stderr.on('data', (data) => {
+  outputBuffer += data.toString();
+});
+
+pty.on('error', (err) => {
+  outputBuffer += '\nError: ' + err.message;
+});
+
 app.post('/api/exec', (req, res) => {
   const { command } = req.body;
   
@@ -23,14 +42,16 @@ app.post('/api/exec', (req, res) => {
     return res.json({ output: 'No command provided' });
   }
 
-  exec(command, { timeout: 30000, shell: '/bin/sh' }, (error, stdout, stderr) => {
-    let output = '';
-    if (stdout) output += stdout;
-    if (stderr) output += stderr;
-    if (error) output += error.message;
-    if (!output) output = '(no output)';
-    res.json({ output });
-  });
+  outputBuffer = '';
+  pty.write(command + '\n');
+
+  setTimeout(() => {
+    res.json({ output: outputBuffer || '(no output)' });
+  }, 500);
+});
+
+app.get('/api/output', (req, res) => {
+  res.json({ output: outputBuffer });
 });
 
 app.listen(PORT, () => {
