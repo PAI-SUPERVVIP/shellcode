@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const pty = spawn('/bin/sh', ['-i'], {
+const pty = spawn('/bin/bash', ['-i'], {
   env: process.env,
   cwd: '/'
 });
