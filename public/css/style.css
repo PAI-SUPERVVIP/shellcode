@@ -1,0 +1,37 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+#terminal-container {
+  flex: 1;
+  padding: 8px;
+}
+.toolbar {
+  display: flex !important;
+  gap: 6px;
+  padding: 8px;
+  background: #222;
+  border-top: 1px solid #444;
+  flex-wrap: wrap;
+  min-height: 60px;
+}
+.toolbar button {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: #333;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.toolbar button:active {
+  background: #555;
+}
+.toolbar button.ctrl-active {
+  background: #0a0;
+}

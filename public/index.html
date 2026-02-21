@@ -5,45 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Web Terminal</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    #terminal-container {
-      flex: 1;
-      padding: 8px;
-    }
-    .toolbar {
-      display: flex !important;
-      gap: 6px;
-      padding: 8px;
-      background: #222;
-      border-top: 1px solid #444;
-      flex-wrap: wrap;
-      min-height: 60px;
-    }
-    .toolbar button {
-      width: 44px;
-      height: 44px;
-      border: none;
-      background: #333;
-      color: #fff;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .toolbar button:active {
-      background: #555;
-    }
-    .toolbar button.ctrl-active {
-      background: #0a0;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <div id="terminal-container"></div>
@@ -64,66 +26,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const term = new Terminal({
-      cursorBlink: true,
-      fontSize: 14,
-      fontFamily: 'monospace',
-      theme: {
-        background: '#000000',
-        foreground: '#00ff00'
-      }
-    });
-
-    const fitAddon = new FitAddon.FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(document.getElementById('terminal-container'));
-    fitAddon.fit();
-
-    const socket = io();
-    let ctrlActive = false;
-
-    term.onData((data) => {
-      socket.emit('terminal:write', data);
-    });
-
-    socket.on('terminal:data', (data) => {
-      term.write(data);
-    });
-
-    window.addEventListener('resize', () => {
-      fitAddon.fit();
-      socket.emit('resize', {
-        cols: term.cols,
-        rows: term.rows
-      });
-    });
-
-    socket.emit('resize', {
-      cols: term.cols,
-      rows: term.rows
-    });
-
-    term.focus();
-
-    function sendKey(key) {
-      socket.emit('terminal:write', key);
-    }
-
-    function toggleCtrl() {
-      ctrlActive = !ctrlActive;
-      document.getElementById('btn-ctrl').classList.toggle('ctrl-active', ctrlActive);
-      socket.emit('terminal:write', ctrlActive ? '\x1b' : '');
-    }
-
-    async function pasteText() {
-      try {
-        const text = await navigator.clipboard.readText();
-        socket.emit('terminal:write', text);
-      } catch {
-        alert('Clipboard not allowed');
-      }
-    }
-  </script>
+  <script src="/js/terminal.js"></script>
 </body>
 </html>
