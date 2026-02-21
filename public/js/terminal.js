@@ -16,6 +16,21 @@ fitAddon.fit();
 const socket = io();
 let ctrlActive = false;
 
+document.addEventListener('touchstart', (e) => {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, { passive: false });
+
 const toolbar = document.querySelector('.toolbar');
 
 function handleVisualViewport() {
@@ -23,11 +38,14 @@ function handleVisualViewport() {
   if (!viewport) return;
   
   const isKeyboardOpen = viewport.height < window.innerHeight * 0.75;
+  const keyboardHeight = window.innerHeight - viewport.height - (viewport.offsetTop || 0);
   
   if (isKeyboardOpen) {
     toolbar.classList.add('keyboard-open');
+    toolbar.style.bottom = keyboardHeight + 'px';
   } else {
     toolbar.classList.remove('keyboard-open');
+    toolbar.style.bottom = '';
   }
   
   fitAddon.fit();
