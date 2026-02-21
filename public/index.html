@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Web Terminal UI</title>
+<style>
+  body {
+    margin: 0;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: monospace;
+  }
+
+  #terminal {
+    flex: 1;
+    background: #000;
+    color: #00ff00;
+    padding: 10px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+
+  .input-line {
+    display: flex;
+    align-items: center;
+    background: #111;
+    padding: 8px;
+  }
+
+  .prompt {
+    color: #00ff00;
+    margin-right: 8px;
+  }
+
+  #command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: monospace;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: #eee;
+    border-top: 1px solid #ccc;
+  }
+
+  .bar button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: white;
+    font-size: 18px;
+    border-radius: 6px;
+  }
+
+  .bar button:active {
+    background: #ddd;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .badge {
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    position: absolute;
+    margin-left: 25px;
+    margin-top: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div id="terminal">Welcome to Web Terminal 
+Type a command and press Enter to run it.</div>
+
+<div class="input-line">
+  <span class="prompt">$</span>
+  <input type="text" id="command-input" placeholder="Enter command..." autocomplete="off" />
+</div>
+
+<div class="bar">
+  <button onclick="sendKey('Tab')">⇥</button>
+  <button onclick="toggleCtrl()">⌃</button>
+  <button onclick="sendKey('Escape')">⎋</button>
+  <button onclick="sendArrow()">⬆︎</button>
+
+  <div class="spacer"></div>
+
+  <div style="position:relative;">
+    <button onclick="showInfo()">ℹ️</button>
+    <div class="badge"></div>
+  </div>
+
+  <button onclick="pasteText()">📋</button>
+  <button onclick="hideKeyboard()">⌨️⬇️</button>
+</div>
+
+<script>
+  const term = document.getElementById("terminal");
+  const input = document.getElementById("command-input");
+  let ctrlActive = false;
+
+  function print(text) {
+    term.textContent += "\n" + text;
+    term.scrollTop = term.scrollHeight;
+  }
+
+  input.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+      const cmd = input.value.trim();
+      if (!cmd) return;
+      
+      print("$ " + cmd);
+      input.value = "";
+      print("Executing...");
+      
+      try {
+        const res = await fetch("/api/exec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ command: cmd })
+        });
+        const data = await res.json();
+        term.textContent = term.textContent.replace("Executing...", "");
+        print(data.output);
+      } catch (err) {
+        term.textContent = term.textContent.replace("Executing...", "");
+        print("Error: " + err.message);
+      }
+    }
+  });
+
+  function sendKey(key) {
+    print("\n[" + key + " pressed]");
+  }
+
+  function toggleCtrl() {
+    ctrlActive = !ctrlActive;
+    print("\n[Ctrl " + (ctrlActive ? "ON" : "OFF") + "]");
+  }
+
+  function sendArrow() {
+    print("\n[Arrow key]");
+  }
+
+  function showInfo() {
+    alert("Web Terminal v1.0");
+  }
+
+  async function pasteText() {
+    try {
+      const text = await navigator.clipboard.readText();
+      input.value += text;
+    } catch {
+      alert("Clipboard not allowed");
+    }
+  }
+
+  function hideKeyboard() {
+    input.blur();
+  }
+
+  input.focus();
+</script>
+
+</body>
+</html>
