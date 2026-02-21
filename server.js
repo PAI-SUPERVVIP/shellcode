@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const shell = '/bin/bash';
+const shell = 'bash';
 const ptyProcess = pty.spawn(shell, [], {
   name: 'xterm-256color',
   cols: 80,

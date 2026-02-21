@@ -11,18 +11,54 @@
       padding: 0;
       background: #000;
       height: 100vh;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     #terminal-container {
-      width: 100%;
-      height: 100%;
+      flex: 1;
       padding: 8px;
-      box-sizing: border-box;
+    }
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      padding: 8px;
+      background: #222;
+      border-top: 1px solid #444;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: #333;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .toolbar button:active {
+      background: #555;
+    }
+    .toolbar button.ctrl-active {
+      background: #0a0;
     }
   </style>
 </head>
 <body>
   <div id="terminal-container"></div>
+
+  <div class="toolbar">
+    <button onclick="sendKey('Tab')" title="Tab">⇥</button>
+    <button onclick="toggleCtrl()" id="btn-ctrl" title="Ctrl">⌃</button>
+    <button onclick="sendKey('\x03')" title="C">C</button>
+    <button onclick="sendKey('\x04')" title="D">D</button>
+    <button onclick="sendKey('\x1b')" title="Escape">⎋</button>
+    <button onclick="sendKey('\x1b[A')" title="Up">↑</button>
+    <button onclick="sendKey('\x1b[B')" title="Down">↓</button>
+    <button onclick="sendKey('\x1b[D')" title="Left">←</button>
+    <button onclick="sendKey('\x1b[C')" title="Right">→</button>
+    <button onclick="pasteText()" title="Paste">📋</button>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
@@ -44,6 +80,7 @@
     fitAddon.fit();
 
     const socket = io();
+    let ctrlActive = false;
 
     term.onData((data) => {
       socket.emit('terminal:write', data);
@@ -67,6 +104,25 @@
     });
 
     term.focus();
+
+    function sendKey(key) {
+      socket.emit('terminal:write', key);
+    }
+
+    function toggleCtrl() {
+      ctrlActive = !ctrlActive;
+      document.getElementById('btn-ctrl').classList.toggle('ctrl-active', ctrlActive);
+      socket.emit('terminal:write', ctrlActive ? '\x1b' : '');
+    }
+
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        socket.emit('terminal:write', text);
+      } catch {
+        alert('Clipboard not allowed');
+      }
+    }
   </script>
 </body>
 </html>
