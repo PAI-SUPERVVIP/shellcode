@@ -100,7 +100,10 @@ Type a command and press Enter to run it.</div>
   <button onclick="sendKey('Tab')">⇥</button>
   <button onclick="toggleCtrl()">⌃</button>
   <button onclick="sendKey('Escape')">⎋</button>
-  <button onclick="sendArrow()">⬆︎</button>
+  <button onclick="sendArrow('ArrowUp')">↑</button>
+  <button onclick="sendArrow('ArrowDown')">↓</button>
+  <button onclick="sendArrow('ArrowLeft')">←</button>
+  <button onclick="sendArrow('ArrowRight')">→</button>
 
   <div class="spacer"></div>
 
@@ -157,8 +160,8 @@ Type a command and press Enter to run it.</div>
     print("\n[Ctrl " + (ctrlActive ? "ON" : "OFF") + "]");
   }
 
-  function sendArrow() {
-    print("\n[Arrow key]");
+  function sendArrow(direction) {
+    print("\n[" + direction + " pressed]");
   }
 
   function showInfo() {
