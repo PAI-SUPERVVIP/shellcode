@@ -146,9 +146,14 @@ Type a command and press Enter to run it.</div>
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ command: cmd })
         });
-        const data = await res.json();
+        const text = await res.text();
         term.textContent = term.textContent.replace("Executing...", "");
-        print(data.output);
+        try {
+          const data = JSON.parse(text);
+          print(data.output || text);
+        } catch {
+          print(text);
+        }
       } catch (err) {
         term.textContent = term.textContent.replace("Executing...", "");
         print("Error: " + err.message);
