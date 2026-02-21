@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -17,12 +18,20 @@ app.use((req, res, next) => {
   next();
 });
 
-const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+// 🔥 เลือก shell ให้ชัดเจน
+let shell;
+if (os.platform() === 'win32') {
+  shell = 'powershell.exe';
+} else {
+  shell = '/bin/bash';   // บังคับใช้ bash
+}
+
+// 🔥 spawn bash ตั้งแต่ server เริ่ม
 const ptyProcess = pty.spawn(shell, [], {
   name: 'xterm-color',
   cols: 80,
   rows: 30,
-  cwd: process.env.HOME || process.cwd(),
+  cwd: '/',
   env: process.env
 });
 
@@ -32,25 +41,30 @@ ptyProcess.onData((data) => {
   outputBuffer += data;
 });
 
+// 🔥 execute command
 app.post('/api/exec', (req, res) => {
   const { command } = req.body;
-  
+
   if (!command) {
     return res.json({ output: 'No command provided' });
   }
 
   outputBuffer = '';
-  ptyProcess.write(command + '\r');
+
+  // ใช้ \n สำหรับ Linux
+  ptyProcess.write(command + '\n');
 
   setTimeout(() => {
     res.json({ output: outputBuffer || '(no output)' });
-  }, 500);
+    outputBuffer = '';
+  }, 300);
 });
 
+// optional: ดู output ล่าสุด
 app.get('/api/output', (req, res) => {
   res.json({ output: outputBuffer });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Web Bash running on port ${PORT}`);
 });
