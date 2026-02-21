@@ -182,7 +182,7 @@ Type a command and press Enter to run it.</div>
 
   function toggleCtrl() {
     ctrlActive = !ctrlActive;
-    print("\n[Ctrl " + (ctrlActive ? "ON" : "OFF") + "]");
+    input.focus();
   }
 
   function sendArrow(direction) {
