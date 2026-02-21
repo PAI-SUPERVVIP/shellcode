@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const shell = os.platform() === 'win32' ? 'powershell.exe' : '/bin/bash';
+const shell = '/bin/bash';
 const ptyProcess = pty.spawn(shell, [], {
   name: 'xterm-256color',
   cols: 80,
