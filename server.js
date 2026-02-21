@@ -1,5 +1,6 @@
 const express = require('express');
-const { spawn } = require('child_process');
+const os = require('os');
+const pty = require('node-pty');
 const path = require('path');
 
 const app = express();
@@ -16,23 +17,19 @@ app.use((req, res, next) => {
   next();
 });
 
-const pty = spawn('/bin/bash', ['-i'], {
-  env: process.env,
-  cwd: '/'
+const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+const ptyProcess = pty.spawn(shell, [], {
+  name: 'xterm-color',
+  cols: 80,
+  rows: 30,
+  cwd: process.env.HOME || process.cwd(),
+  env: process.env
 });
 
 let outputBuffer = '';
 
-pty.stdout.on('data', (data) => {
-  outputBuffer += data.toString();
-});
-
-pty.stderr.on('data', (data) => {
-  outputBuffer += data.toString();
-});
-
-pty.on('error', (err) => {
-  outputBuffer += '\nError: ' + err.message;
+ptyProcess.onData((data) => {
+  outputBuffer += data;
 });
 
 app.post('/api/exec', (req, res) => {
@@ -43,7 +40,7 @@ app.post('/api/exec', (req, res) => {
   }
 
   outputBuffer = '';
-  pty.write(command + '\n');
+  ptyProcess.write(command + '\r');
 
   setTimeout(() => {
     res.json({ output: outputBuffer || '(no output)' });
