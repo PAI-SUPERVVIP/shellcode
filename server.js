@@ -40,12 +40,17 @@ const io = new Server(server, {
   pingInterval: 25000
 });
 
+io.engine.on('connection_error', (err) => {
+  console.log('Connection error:', err);
+});
+
 const shell = '/bin/sh';
 
 console.log('Shell path:', shell);
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id, socket.conn.transport.name);
+  console.log('Socket handshake:', socket.handshake);
 
   let ptyProcess;
   try {
