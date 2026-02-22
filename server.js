@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const shell = '/bin/bash';
+const shell = '/bin/sh';
 
 io.on('connection', (socket) => {
   const ptyProcess = pty.spawn(shell, [], {
