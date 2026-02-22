@@ -23,12 +23,12 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) => {
   console.log('Root path hit');
-  res.status(200).send('OK');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 const io = new Server(server, {
   cors: {
