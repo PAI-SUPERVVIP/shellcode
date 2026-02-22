@@ -28,14 +28,25 @@ app.get('/health', (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  },
+  transports: ['websocket', 'polling']
+});
 
 const shell = '/bin/sh';
 
 console.log('Shell path:', shell);
 
 io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+  console.log('Client connected:', socket.id, socket.conn.transport.name);
+
+  socket.on('disconnect', (reason) => {
+    console.log('Client disconnected:', socket.id, reason);
+  });
+});
 
   let ptyProcess;
   try {
