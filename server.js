@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (req, res) => {
+  res.send('OK');
+});
+
 const shell = '/bin/sh';
 
 io.on('connection', (socket) => {
