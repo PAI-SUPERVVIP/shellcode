@@ -9,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 
 console.log("ENV PORT:", process.env.PORT);
+console.log("Starting server...");
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,12 +18,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-  console.log('Root path hit');
+app.get('/health', (req, res) => {
+  console.log('Health check hit');
   res.status(200).send('OK');
 });
 
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
+  console.log('Root path hit');
   res.status(200).send('OK');
 });
 
