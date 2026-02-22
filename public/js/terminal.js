@@ -1,3 +1,5 @@
+console.log('terminal.js loading');
+
 const term = new Terminal({
   cursorBlink: true,
   fontSize: 14,
