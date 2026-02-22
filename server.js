@@ -31,6 +31,8 @@ app.get('/health', (req, res) => {
 const shell = '/bin/sh';
 
 io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+
   const ptyProcess = pty.spawn(shell, [], {
     name: 'xterm-256color',
     cols: 80,
@@ -38,6 +40,8 @@ io.on('connection', (socket) => {
     cwd: process.env.HOME || process.cwd(),
     env: process.env
   });
+
+  console.log('PTY spawned for:', socket.id);
 
   ptyProcess.onData((data) => {
     socket.emit('terminal:data', data);
@@ -52,6 +56,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
     ptyProcess.kill();
   });
 });
