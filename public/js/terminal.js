@@ -18,12 +18,18 @@ const socket = io({
   reconnection: true
 });
 
+console.log('Socket created, attempting to connect...');
+
 socket.on('connect', () => {
-  console.log('Socket connected');
+  console.log('Socket connected:', socket.id);
 });
 
 socket.on('connect_error', (err) => {
-  console.error('Socket connection error:', err);
+  console.error('Socket connection error:', err.message, err.description);
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('Socket disconnected:', reason);
 });
 
 let ctrlActive = false;
