@@ -7,13 +7,10 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 
 console.log("ENV PORT:", process.env.PORT);
 
 const PORT = process.env.PORT || 3000;
-
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
   console.log("Incoming request:", req.method, req.url);
@@ -21,6 +18,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
+  console.log('Root path hit');
   res.status(200).send('OK');
 });
 
@@ -28,20 +26,31 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+const io = new Server(server);
+
 const shell = '/bin/sh';
+
+console.log('Shell path:', shell);
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
-  const ptyProcess = pty.spawn(shell, [], {
-    name: 'xterm-256color',
-    cols: 80,
-    rows: 30,
-    cwd: process.env.HOME || process.cwd(),
-    env: process.env
-  });
-
-  console.log('PTY spawned for:', socket.id);
+  let ptyProcess;
+  try {
+    ptyProcess = pty.spawn(shell, [], {
+      name: 'xterm-256color',
+      cols: 80,
+      rows: 30,
+      cwd: process.env.HOME || process.cwd(),
+      env: process.env
+    });
+    console.log('PTY spawned for:', socket.id);
+  } catch (err) {
+    console.error('PTY spawn error:', err);
+    return;
+  }
 
   ptyProcess.onData((data) => {
     socket.emit('terminal:data', data);
