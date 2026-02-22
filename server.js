@@ -13,25 +13,30 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 const shell = process.env.SHELL || 'sh';
-const ptyProcess = pty.spawn(shell, [], {
-  name: 'xterm-256color',
-  cols: 80,
-  rows: 30,
-  cwd: process.env.HOME || process.cwd(),
-  env: process.env
-});
-
-ptyProcess.onData((data) => {
-  io.emit('terminal:data', data);
-});
 
 io.on('connection', (socket) => {
+  const ptyProcess = pty.spawn(shell, [], {
+    name: 'xterm-256color',
+    cols: 80,
+    rows: 30,
+    cwd: process.env.HOME || process.cwd(),
+    env: process.env
+  });
+
+  ptyProcess.onData((data) => {
+    socket.emit('terminal:data', data);
+  });
+
   socket.on('terminal:write', (data) => {
     ptyProcess.write(data);
   });
 
   socket.on('resize', (size) => {
     ptyProcess.resize(size.cols, size.rows);
+  });
+
+  socket.on('disconnect', () => {
+    ptyProcess.kill();
   });
 });
 
