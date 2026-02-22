@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-  res.send('OK');
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
 const shell = '/bin/sh';
