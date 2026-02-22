@@ -40,8 +40,10 @@ const io = new Server(server, {
   pingInterval: 25000
 });
 
+console.log('Socket.io server initialized');
+
 io.engine.on('connection_error', (err) => {
-  console.log('Connection error:', err);
+  console.log('Connection error:', err.code, err.message);
 });
 
 const shell = '/bin/sh';
