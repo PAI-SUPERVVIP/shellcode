@@ -13,10 +13,16 @@ body {
   min-height: 0;
 }
 #mobile-input {
-  position: absolute;
-  left: -9999px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
   opacity: 0;
   pointer-events: none;
+  -webkit-appearance: none;
+  transform: scale(0.01);
+  transform-origin: top left;
 }
 .toolbar {
   display: flex !important;
