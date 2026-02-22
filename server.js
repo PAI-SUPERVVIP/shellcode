@@ -46,7 +46,7 @@ io.engine.on('connection_error', (err) => {
   console.log('Connection error:', err.code, err.message);
 });
 
-const shell = '/bin/sh';
+const shell = '/bin/bash';
 
 console.log('Shell path:', shell);
 
