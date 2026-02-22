@@ -13,6 +13,19 @@ term.loadAddon(fitAddon);
 term.open(document.getElementById('terminal-container'));
 fitAddon.fit();
 
+const socket = io({
+  transports: ['websocket', 'polling'],
+  reconnection: true
+});
+
+socket.on('connect', () => {
+  console.log('Socket connected');
+});
+
+socket.on('connect_error', (err) => {
+  console.error('Socket connection error:', err);
+});
+
 let ctrlActive = false;
 
 document.addEventListener('keydown', (e) => {

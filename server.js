@@ -33,7 +33,18 @@ const io = new Server(server, {
     origin: '*',
     methods: ['GET', 'POST']
   },
-  transports: ['websocket', 'polling']
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id, socket.conn.transport.name);
+  console.log('Socket query:', socket.handshake.query);
+
+  socket.on('disconnect', (reason) => {
+    console.log('Client disconnected:', socket.id, reason);
+  });
 });
 
 const shell = '/bin/sh';
