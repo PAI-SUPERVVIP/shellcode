@@ -40,26 +40,12 @@ const io = new Server(server, {
   pingInterval: 25000
 });
 
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id, socket.conn.transport.name);
-  console.log('Socket query:', socket.handshake.query);
-
-  socket.on('disconnect', (reason) => {
-    console.log('Client disconnected:', socket.id, reason);
-  });
-});
-
 const shell = '/bin/sh';
 
 console.log('Shell path:', shell);
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id, socket.conn.transport.name);
-
-  socket.on('disconnect', (reason) => {
-    console.log('Client disconnected:', socket.id, reason);
-  });
-});
 
   let ptyProcess;
   try {
