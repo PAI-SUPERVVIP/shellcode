@@ -31,7 +31,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/download/:filename', (req, res) => {
-  const path = require('path');
   const filePath = path.join(__dirname, req.params.filename);
   res.download(filePath);
 });
