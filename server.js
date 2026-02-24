@@ -30,6 +30,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/download', (req, res) => {
+  const filePath = path.join(__dirname, 'test.txt');
+  res.download(filePath);
+});
+
 const io = new Server(server, {
   cors: {
     origin: '*',
